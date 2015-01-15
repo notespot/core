@@ -44,6 +44,33 @@ if (isset($_GET['cities'])) {
     } else echo json_encode(array(
         'error' => 1,
     ), JSON_PRETTY_PRINT);
+} elseif (isset($_GET['courses']) && isset($_GET['institute'])) {
+    $inst_id = filter_input(INPUT_GET, "institute", FILTER_VALIDATE_INT);
+    if ($inst_id != null && $inst_id != false) {
+        $courses = get_all_courses($inst_id);
+        if ($courses != false) {
+            echo json_encode($courses, JSON_PRETTY_PRINT);
+        } else echo json_encode(array(
+            'error' => 1,
+        ), JSON_PRETTY_PRINT);
+    } else echo json_encode(array(
+        'error' => 1,
+    ), JSON_PRETTY_PRINT);
+}
+
+
+function get_all_courses($inst_id)
+{
+    try {
+        $conn = db_config(DB_NAME);
+        $query = $conn->query("SELECT * FROM courses WHERE institute_id=$inst_id");
+        $query->execute();
+        $result = $query->fetchAll();
+        return $result;
+    } catch (PDOException $e) {
+//        echo $e->getMessage();
+    }
+    return false;
 }
 
 function get_all_institutes($city_id)

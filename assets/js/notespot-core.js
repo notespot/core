@@ -46,4 +46,20 @@ function instituteSelected() {
             });
         }
     });
+    departmentSelected();
+}
+
+function departmentSelected() {
+    var e = document.getElementById("institute_list");
+    var inst_id = e.options[e.selectedIndex].value;
+    $('#course_list').empty();
+    $.ajax({
+        type: "GET",
+        url: "api.php?courses&institute=" + inst_id,
+        success: function (data) {
+            $.each(data, function (i, o) {
+                $('#course_list').append('<option value="' + o['id'] + '">' + o['name'] + '</option>');
+            });
+        }
+    });
 }

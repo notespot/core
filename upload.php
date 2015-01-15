@@ -9,18 +9,59 @@ function save_note()
 {
     if (isset($_GET['upload'])) {
         $errors = array();
-        $state = filter_input(INPUT_POST, "state");
-        $city = filter_input(INPUT_POST, "city");
-        $institute = filter_input(INPUT_POST, "institute");
+        $state = filter_input(INPUT_POST, "state", FILTER_VALIDATE_INT);
+        $city = filter_input(INPUT_POST, "city", FILTER_VALIDATE_INT);
+        $institute = filter_input(INPUT_POST, "institute", FILTER_VALIDATE_INT);
+        $course = filter_input(INPUT_POST, "course", FILTER_VALIDATE_INT);
+        $dep = filter_input(INPUT_POST, "dep", FILTER_VALIDATE_INT);
         $desc = filter_input(INPUT_POST, "desc");
+
+        if ($state == null || $state == false)
+            $errors[] = "State not selected";
+        if ($city == null || $city == false)
+            $errors[] = "City not selected";
+        if ($institute == null || $institute == false)
+            $errors[] = "Institute not selected";
+        if ($course == null || $course == false)
+            $errors[] = "Course not selected";
+        if ($desc == null || $desc == false)
+            $errors[] = "Description not given";
+        if ($dep == null || $dep == false)
+            $errors[] = "Department not selected";
+
+        if (count($errors) == 0) {
+            $conn = db_config(DB_NAME);
+            $new_name = sha1("" . time());
+            if (upload_file($new_name) == true) {
+                $sql = "INSERT INTO notes (department_id, course_id, institute_id, user_id, link, description)
+                          VALUES (:dep, :course, :inst, :usr, :link, :description)";
+                try {
+                    $query = $conn->prepare($sql);
+                    $query->bindParam(":dep", $dep);
+                    $query->bindParam(":course", $course);
+                    $query->bindParam(":inst", $institute);
+                    $query->bindParam(":usr", $_SESSION['user-id']);
+                    $query->bindParam(":link", $new_name);
+                    $query->bindParam(":description", $desc);
+                    $query->execute();
+                } catch (PDOException $e) {
+                    echo $e->getMessage();
+                }
+            }
+
+        } else {
+            print_r($errors);
+        }
     }
 }
 
-function upload_file()
+function upload_file($new_name)
 {
     $errors = array();
     $target_dir = "uploads/";
-    $target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
+    $temp = explode(".", $_FILES["fileToUpload"]["name"]);
+    $new_name = $new_name . "." . end($temp);
+    $target_file = $target_dir . $new_name;//basename($_FILES["fileToUpload"]["name"]);
     $upload_ok = 1;
     $file_type = pathinfo($target_file, PATHINFO_EXTENSION);
 
@@ -29,7 +70,7 @@ function upload_file()
         $upload_ok = 0;
     }
 
-    if ($_FILES["fileToUpload"]["size"] > 500000) {
+    if ($_FILES["fileToUpload"]["size"] > 1000000) {
         $errors[] = "Sorry, your file is too large";
         $upload_ok = 0;
     }
@@ -47,14 +88,7 @@ function upload_file()
     return $errors;
 }
 
-if (isset($_GET['upload'])) {
-    $status = upload_file();
-    if ($status === true) {
-        echo 'Uploaded successfully.';
-    } else {
-        print_r($status);
-    }
-}
+save_note();
 
 function get_all_states($country_id = 1)
 {
@@ -121,12 +155,18 @@ function get_all_states($country_id = 1)
         </div>
 
         <div class="pure-control-group">
+            <label for="course">Course</label>
+            <select name="course" id="course_list">
+            </select>
+        </div>
+
+        <div class="pure-control-group">
             <label for="desc">Description</label>
             <textarea name="desc"></textarea>
         </div>
 
         <div class="pure-control-group">
-            <label for="fileToUpload"> Select image to upload</label>
+            <label for="fileToUpload"> Select file to upload</label>
             <input type="file" name="fileToUpload" id="fileToUpload">
         </div>
 
