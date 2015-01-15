@@ -11,7 +11,6 @@ if (isset($_GET['logout'])) {
     session_destroy();
     $auth = false;
 }
-
 ?>
 <!doctype HTML>
 <html>

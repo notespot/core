@@ -15,12 +15,23 @@ CREATE TABLE IF NOT EXISTS countries (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS states (
+  id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+  name       VARCHAR(56)     NOT NULL,
+  country_id BIGINT UNSIGNED NOT NULL,
+  PRIMARY KEY (id),
+  FOREIGN KEY (country_id) REFERENCES countries (id)
+    ON DELETE CASCADE
+);
 CREATE TABLE IF NOT EXISTS cities (
   id         BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name       VARCHAR(128)    NOT NULL,
   country_id BIGINT UNSIGNED NOT NULL,
+  state_id   BIGINT UNSIGNED NOT NULL,
   PRIMARY KEY (id),
   FOREIGN KEY (country_id) REFERENCES countries (id)
+    ON DELETE CASCADE,
+  FOREIGN KEY (state_id) REFERENCES states (id)
     ON DELETE CASCADE
 );
 
