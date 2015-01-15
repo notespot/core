@@ -98,3 +98,10 @@ function __insert($tbl, $values)
         echo "$sql: " . $e->getMessage();
     }
 }
+
+function echo_logout()
+{
+    if (authenticated()) {
+        echo '<h1><a href="./index.php?logout">Logout</a></h1>';
+    }
+}
