@@ -36,10 +36,6 @@ function save_note()
                 $sql = "INSERT INTO notes (department_id, course_id, institute_id, user_id, link, description)
                           VALUES (:dep, :course, :inst, :usr, :link, :description)";
                 try {
-<<<<<<< HEAD
-                    //print_r($sql);
-=======
->>>>>>> origin/master
                     $query = $conn->prepare($sql);
                     $query->bindParam(":dep", $dep);
                     $query->bindParam(":course", $course);
